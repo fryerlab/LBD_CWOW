@@ -49,11 +49,18 @@ Download or move the raw sequences to the raw_fastq folder.
 ### Download the human GRCh38 reference genome and create sex chromosome complement reference genomes. 
 Reads were aligned to the default gencode human GRCh38 reference genome. Samples were sex checked, and then samples were re-sequenced to a reference genome informed on the sex chromosome complement (SCC) of the sample. See [Olney et al. 2020 Biol Sex Differ](https://bsd.biomedcentral.com/articles/10.1186/s13293-020-00312-9) for more details about the SCC approach. 
 
-Download the gencode GRCh38 reference genome. 
+Download the gencode GRCh38 reference genome and gene annotation file. First, change the working directory to the references folder. 
 ```
 cd references
-wget 
+wget http://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_38/GRCh38.primary_assembly.genome.fa.gz
+wget http://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_38/gencode.v38.annotation.gtf.gz
 ```
+The build_gencode.v38.Snakefile script will create three STAR reference indexes: default, YPARSmask, and Ymasked. Be sure to have the LBD conda environment activated before running snakemake. 
+```
+cd scripts/snakemake/
+snakemake -s build_gencode.v38.Snakefile
+```
+
 
 ## Run Snakemake for bulk RNAseq  data processing 
 1. get_read_group_info.sh script will list the fastq files that are located in the raw_fastq folder and collect header information that will be used to create the config file in the next step. 
