@@ -100,7 +100,8 @@ Overview of R scripts and functions:
 7. 07
 8. 08
 9. 09
-10. `file_paths_and_colors.R`
+10. `file_paths_and_colors.R` This script will be sourced in the above R scripts to load the necessary libraries, read in the metadata table, and define colors and shapes for each disease type and genetic sex.
+11. `gtf_path.R` This script will be sourced in only some of the R scripts listed above. The script will load in the human gene annotation file that is needed for some of the downstream analyses. 
 
 ## Manuscript figures 
 Scripts to make the following figures can be found under `scripts/R/manuscript_figures/`
