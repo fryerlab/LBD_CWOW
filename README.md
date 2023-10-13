@@ -1,7 +1,7 @@
 # LBD_CWOW
 Lewy Body Dementia Center With Out Walls (LBD CWOW) RNAseq processing and analysis.
 Anterior cingulate cortex tissue samples from the Mayo Clinic brain bank were collected for 619 individuals. 
-Raw fastq files are available on SRA, PRJNA1023207
+Raw fastq files are available on SRA, PRJNA1023207.
 
 | Disease                   | Count   |
 | ------------------------- |:-------:|
@@ -11,15 +11,15 @@ Raw fastq files are available on SRA, PRJNA1023207
 | Lewy body dementia (LBD)  | 440     |
 
 This git repo contains scripts for the following:
--   Metadata analysis
--   Processing of bulk-tissue RNA-sequencing data
--   Analysis of bulk-tissue RNA-sequencing data 
+-   Metadata analysis of the 619 individuals. 
+-   Processing of bulk-tissue RNA-sequencing data.
+-   Gene-level differential expression among pairwise groups and within each genetic sex.
+-   Weighted gene co-expression network analysis (WGCNA).  
 -   Generation of manuscript figures from Olney et al. 202x publication 
 -   Generation of shiny app for exploration of the results presented in Olney et al. 202x publication, view app [here](https://fryerlab.shinyapps.io/LBD_CWOW/)
 
 
 ## Create conda environment
-
 The necessary software for bulk RNAseq data processing is contained in: `LBD.yml`.
 
 To create the environment:
