@@ -36,8 +36,7 @@ conda env create -n LBD --file LBD.yml
 
 ```
 After the conda LBD environment has been created, you will need to additionally install GATK.
-This step must be done manually and not through conda; see [here](https://gatk.broadinstitute.org/hc/en-us/articles/360036194592-Getting-started-with-GATK4)
-The above link will explain how to download GATK4, then you will need to add an alias to your bash profile:
+This step must be done manually and not through conda; see [here](https://gatk.broadinstitute.org/hc/en-us/articles/360036194592-Getting-started-with-GATK4). The link will explain how to download GATK4, then you will need to add an alias to your bash profile. 
 ```
 alias gatk='/path/to/gatk-package/gatk'
 ```
