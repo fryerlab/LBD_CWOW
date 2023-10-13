@@ -83,9 +83,9 @@ Supplemental figures:
 ## Contact information 
 ## Contact information
 
-| Contact | Email | Scope |
+| Contact | Email |
 | --- | --- | --- |
-| Kimberly Olney, PhD | olney.kimberly@mayo.edu | data processing and analysis |
-| John Fryer, PhD | fryer.john@mayo.edu | Principal investigator |
+| Kimberly Olney, PhD | olney.kimberly@mayo.edu |
+| John Fryer, PhD | fryer.john@mayo.edu |
 
 
