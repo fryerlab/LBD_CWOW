@@ -1,5 +1,5 @@
 ---
-title: "Differential expression in CWOW samples"
+title: "Differential expression in each sex"
 author: "Kimberly Olney, Ph.D."
 date: "09/30/2022"
 output:
@@ -9,7 +9,7 @@ output:
 params:
   args: myarg
 ---
-Samples have already been sex checked and realigned to the SCC reference. 
+Volcano plots and DEG tables for pairwise comparisons within each sex and sex differential expression. 
 # Setup
 ```{r setup}
 knitr::opts_knit$set(root.dir = ".")
