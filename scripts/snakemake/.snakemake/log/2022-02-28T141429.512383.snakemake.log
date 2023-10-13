@@ -1,3 +1,0 @@
-KeyError in line 143 of /research/labs/neurology/fryer/m239830/LBD_CWOW/scripts/snakemake/Snakefile:
-'star_ref_index'
-  File "/research/labs/neurology/fryer/m239830/LBD_CWOW/scripts/snakemake/Snakefile", line 143, in <module>

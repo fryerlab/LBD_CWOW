@@ -1,3 +1,0 @@
-KeyError in line 276 of /research/labs/neurology/fryer/m239830/LBD_CWOW/scripts/snakemake/Snakefile:
-'Sscrofa_names_protein.gtf'
-  File "/research/labs/neurology/fryer/m239830/LBD_CWOW/scripts/snakemake/Snakefile", line 276, in <module>

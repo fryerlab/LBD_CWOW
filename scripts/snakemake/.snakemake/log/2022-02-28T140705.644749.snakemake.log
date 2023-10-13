@@ -1,2 +1,0 @@
-SyntaxError in line 36 of /research/labs/neurology/fryer/m239830/LBD_CWOW/scripts/snakemake/Snakefile:
-Unexpected keyword expand in rule definition (Snakefile, line 36)
