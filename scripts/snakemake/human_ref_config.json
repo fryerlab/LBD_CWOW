@@ -1,0 +1,8 @@
+{ 
+  "Comment_Reference": "The following section specified the location of the index file for human gencode reference genome",
+  "genome_paths": "/LBD_CWOW/references/",
+  "gencode_fa": "/LBD_CWOW/references/GRCh38.primary_assembly.genome",
+  "gencode_gtf": "/LBD_CWOW/references/gencode.v38.annotation",
+  "gencode_Ymasked": "/LBD_CWOW/references/GRCh38_Ymasked",
+  "gencode_YPARsmasked": "/LBD_CWOW/references/GRCh38_YPARsmasked"
+}
