@@ -1,5 +1,5 @@
 ---
-title: "Sex check"
+title: "Sex check when samples were aligned to the default reference genome"
 author: "Kimberly Olney, Ph.D."
 date: "01/05/2023"
 output:
@@ -9,7 +9,8 @@ output:
 params:
   args: myarg
 ---
-
+# Sex check
+Samples have already been sex checked. All samples match the reported with inferred sex. The metadata.tsv in the scripts fold contains both reported and referred sex. This script can be skipped if you wish to proceed with the inferred sex in metadata.tsv file. 
 # Setup
 ```{r setup}
 # Also do Session > Set Working Directory > Choose Directory
@@ -72,7 +73,7 @@ for (i in 2:length(count_files)) {
 }
 ```
 # Star mapping metrics
-```{r}
+```{r plot_mapping_metrics}
 star_metrics <- data.frame(counts[counts$V1 %like% "N_", ])
 star_metrics$V1 <- as.vector(star_metrics$V1)
 melt_star_metrics <- reshape::melt(star_metrics, id = c("V1"))
@@ -123,8 +124,7 @@ all.equal(colnames(counts), (counts_metadata$NPID))
 dge <- DGEList(counts = counts,
                samples = counts_metadata,
                genes = genes.gtf)
-
-table(dge$samples$TYPE)
+table(dge$samples$TYPE) # examine 
 ```
 # Save R object
 ```{r, eval=FALSE}
@@ -150,7 +150,7 @@ dge$samples$Sex <- as.factor(dge$samples$Sex)
 sex_colors <- c(SexColors)[dge$samples$Sex]
 ```
 
-```{r}
+```{r MDS}
 par(bg = 'white')
 
 # plot MDS
@@ -188,8 +188,7 @@ saveToPDF(paste0(path, ".pdf"), width = 5, height = 5)
 ```
 # Sex check
 View the expression of sex-linked genes to determine if samples are correctly annotated as XX or XY. 
-Genetic sex is not gender. 
-```{r}
+```{r sex_genes}
 genes_and_counts <- cbind(dge$genes$gene_name, dge$counts)
 genes_and_counts <- as.data.frame(genes_and_counts)
 names(genes_and_counts)[names(genes_and_counts) == "V1"] <- "Geneid"
@@ -231,7 +230,7 @@ training.samples <- train_data$sex %>%
 train.data  <- train_data[training.samples, ]
 test.data <- train_data[-training.samples, ]
 
-# Dummy code categorical predictor variables
+# Dummy code for categorical predictor variables
 x <- model.matrix(sex~., train.data)[,-1]
 # Convert the outcome (class) to a numerical variable
 y <- ifelse(train.data$sex == "female", 1, 0)
@@ -247,7 +246,7 @@ coef(cv.lasso, cv.lasso$lambda.1se)
 # Glmnet is a package that fits generalized linear and similar models via penalized maximum likelihood. 
 lasso.model <- glmnet(x, y, alpha = 1, family = "binomial",
                       lambda = cv.lasso$lambda.min)
-# Make prediction on test data
+# Make predictions on test data
 x.test <- model.matrix(sex ~., test.data)[,-1]
 probabilities <- lasso.model %>% predict(newx = x.test)
 predicted.classes <- ifelse(probabilities > 0.5, "female", "male")
@@ -326,7 +325,7 @@ remove(genes_and_counts,
        meta_short)
 ```
 # Format sex check for plotting
-```{r}
+```{r sex_check_plot}
 genes_and_counts <- cbind(dge$genes$gene_name, lcpm)
 genes_and_counts <- as.data.frame(genes_and_counts)
 names(genes_and_counts)[names(genes_and_counts) == "V1"] <- "Geneid"
@@ -441,7 +440,7 @@ data <- SelectGenes_counts
 data$value <- as.numeric(data$value)
 ```
 # Plot sex check
-```{r}
+```{r sex_check_plot2}
 wrong_sex_samples <-
   data[data$NPID %in% samples_to_investigate$NPID, ]
 wrong_sex_samples <- unique(wrong_sex_samples)
@@ -508,594 +507,3 @@ remove(df,
        sex_gene_meta,
        wrong_sex_samples)
 ```
-# RIN check with replicates
-```{r}
-# first filter by expression and normalize the data
-keep.expr <- filterByExpr(dge, group = dge$samples$TYPE)
-dim(dge)
-dge.filtered.reps <- dge[keep.expr, , keep.lib.sizes = FALSE]
-
-dim(dge.filtered.reps)
-table(dge.filtered.reps$genes$gene_type)
-
-# Now, normalization by the method of trimmed mean of M-values (TMM)
-dge.filtered.reps.norm <- calcNormFactors(dge.filtered.reps, method = "TMM")
-
-# norm factor summary
-summary(dge.filtered.reps.norm$samples$norm.factors)
-log2cpm.norm.reps <- edgeR::cpm(dge.filtered.reps.norm, log = T)
-nsamples <- ncol(dge.filtered.reps.norm)
-boxplot(log2cpm.norm.reps, 
-        main="Filtered normalized lcpm data with replicates", 
-        xlab="RIN", 
-        ylab=expression('Counts per gene (Log'[2]~'CPM)'),
-        axes=FALSE)
-axis(2)
-axis(1,at=1:nsamples,labels=(dge.filtered.reps.norm$samples$RIN),las=2,cex.axis=0.8)
-
-path <- paste0("../../results/", tool, "/library/", condition, "_gene_boxplot_RIN")
-saveToPDF(paste0(path, ".pdf"), width = 35, height = 6)
-```
-
-# Sum technical replicates
-Each sample was sequenced on two different lanes. 
-Samples have already been combined together during the alignment process. 
-See snakemake pipeline for details. 
-```{r techReps}
-dim(dge)
-dge.tech <- sumTechReps(dge, dge$samples$NPID)
-dim(dge.tech$counts)
-colnames(dge.tech$counts) <- dge.tech$samples$NPID
-
-dge.tech$samples$TYPE <- as.factor(dge.tech$samples$TYPE)
-group_colors <- c(TypeColors)[dge.tech$samples$TYPE]
-
-lcpm <- edgeR::cpm(dge.tech$counts, log = TRUE)
-```
-
-# Raw MDS
-```{r}
-par(bg = 'white')
-
-# plot MDS
-plotMDS(
-  lcpm,
-  top = 500, 
-  labels = dge.tech$samples$Sex,
-  cex = .8, 
-  dim.plot = c(1,2), 
-  plot = TRUE, 
-  col = group_colors,
-  gene.selection = "common"
-)
-title(expression('Top 500 Genes (Log'[2]~'CPM)'))
-
-path <- paste0("../../results/", tool, "/MDS/", 
-               condition,"_label_sex_dim1&2")
-saveToPDF(paste0(path, ".pdf"), width = 5.2, height = 5.2)
-
-# plot MDS
-plotMDS(
-  lcpm,
-  top = 500, 
-  labels = dge.tech$samples$Sex,
-  cex = .8, 
-  dim.plot = c(2,3), 
-  plot = TRUE, 
-  col = group_colors,
-  gene.selection = "common"
-)
-title(expression('Top 500 Genes (Log'[2]~'CPM)'))
-path <- paste0("../../results/", tool, "/MDS/", 
-               condition,"_label_sex_dim2&3")
-saveToPDF(paste0(path, ".pdf"), width = 5.2, height = 5.2)
-```
-
-# Filter lowly expressed genes
-The filterByExpr() function in the edgeR package determines which genes have a 
-great enough count value to keep.  We will filter by group.  This means at least 
-x samples (x is the smallest group sample size) must express a minimum count of 
-10 (in cpm, default value). 
-
-```{r filter}
-keep.expr <- filterByExpr(dge.tech, group = dge.tech$samples$TYPE)
-dim(dge.tech)
-dge.filtered <- dge.tech[keep.expr, , keep.lib.sizes = FALSE]
-help(filterByExpr)
-dim(dge.filtered)
-table(dge.filtered$genes$gene_type)
-```
-
-# TMM normalization
-For estimating relative RNA production levels from RNA-seq data. 
-The TMM method estimates scale factors between samples that can be incorporated 
-into currently used statistical methods for DE analysis.
-```{r TMM_normalize}
-# Now, normalization by the method of trimmed mean of M-values (TMM)
-dge.filtered.norm <- calcNormFactors(dge.filtered, method = "TMM")
-
-# norm factor summary
-summary(dge.filtered.norm$samples$norm.factors)
-```
-
-# Density plot
-Density plots of log-intensity distribution of each library can be superposed 
-on a single graph for a better comparison between libraries and for 
-identification of libraries with weird distribution. 
-```{r density_plots}
-# set graphical parameter
-par(mfrow = c(1,3))
-
-# Normalize data for library size and expression intensity
-log2cpm.tech <- edgeR::cpm(dge.tech, log = TRUE)
-log2cpm.filtered <- edgeR::cpm(dge.filtered, log = TRUE)
-log2cpm.norm <- edgeR::cpm(dge.filtered.norm, log = TRUE)
-
-# set colors
-colors <- c("red","orange","green","yellow","blue","purple", 
-            "lightgray","brown","pink","cyan")
-nsamples <- ncol(dge.tech)
-
-# First, plot the first column of the log2cpm.tech density
-plot(density(log2cpm.tech[,1]), col = colors[1], lwd = 2, ylim = c(0,0.45), 
-     las = 2, main = "A. Raw", xlab = expression('Log'[2]~CPM))
-
-# For each sample plot the lcpm density
-for (i in 2:nsamples){
-  den <- density(log2cpm.tech[,i]) #subset each column
-  lines(den$x, den$y, col = colors[i], lwd = 2) 
-}
-
-# Second, plot log2cpm.filtered
-plot(density(log2cpm.filtered[,1]), col = colors[1], lwd = 2, ylim = c(0,0.45), 
-     las = 2, main = "B. Filtered", xlab = expression('Log'[2]~CPM))
-abline(v = edgeR::cpm(3, log = TRUE), lty = 3)
-for (i in 2:nsamples) {
-  den <- density(log2cpm.filtered[,i])
-  lines(den$x, den$y, col = colors[i], lwd = 2)
-}
-
-# Third, plot log2cpm.norm
-plot(density(log2cpm.norm[,1]), col = colors[1], lwd = 2, ylim = c(0,0.45), 
-     las = 2, main = "C. Normalized", xlab = expression('Log'[2]~CPM))
-abline(v = edgeR::cpm(3, log = TRUE), lty = 3)
-for (i in 2:nsamples) {
-  den <- density(log2cpm.norm[,i])
-  lines(den$x, den$y, col = colors[i], lwd = 2)
-}
-
-# save
-path <- paste0("../../results/", tool, "/density/", condition, "_gene_density")
-saveToPDF(paste0(path, ".pdf"), width = 6, height = 4)
-```
-
-# RIN check 
-check if there is correlation between RIN and library size
-```{r}
-box <- dge.filtered.norm$samples
-cor(box$RIN, box$lib.size, method = c("pearson", "kendall", "spearman"))
-cor.test(box$RIN, box$lib.size, method=c("pearson", "kendall", "spearman"))
-
-# is the data normally distributed?
-ggqqplot(box$lib.size, ylab = "library size")
-ggqqplot(box$RIN, ylab = "RIN")
-res <- cor.test(box$lib.size, box$RIN, 
-                method = "pearson")
-res
-
-ggscatter(box, x = "RIN", y = "lib.size", 
-          add = "reg.line", conf.int = TRUE, 
-          cor.coef = TRUE, cor.method = "pearson",
-          ylab = "library size", xlab = "RIN value") 
-
-path <- paste0("../../results/", tool, "/library/", condition, "_corr_RIN_lib_size")
-saveToPDF(paste0(path, ".pdf"), width = 6, height = 6)
-```
-
-```{r}
-remove(box,
-       res)
-```
-
-# Variance partition
-CCA Heatmap
-```{r CCA_heatmap}
-form <- ~ TYPE +
-PathDx +
-AD.subtype +
-LBD.type +
-CDLB +
-Braak.NFT +
-Thal.amyloid +
-MF.SP +
-MF.NFT +
-MF.LB +
-Cing.LB +
-MF.Amyloid +
-MF.Tau +
-Cing.Synuclein +
-CWOW.Category +
-VaD  +
-TDP.type +
-Brain.wt +
-ClinicalDx +
-FHx +
-Duration +
-Sex +
-Age +
-Race +
-PMI +
-APOE +
-MAPT +
-GRN +
-TMEM106b +
-RIN +
-Total.RNA.ng 
-# Compute Canonical Correlation Analysis (CCA)
-# between all pairs of variables
-# returns absolute correlation value
-info <- as.data.frame(dge.filtered.norm$samples)
-C = canCorPairs( form, info)
-
-# replace NA with zero
-C[is.na(C)] = 0
-cor.mtest <- function(C, ...) {
-    C <- as.matrix(C)
-    n <- ncol(C)
-    p.mat<- matrix(NA, n, n)
-    diag(p.mat) <- 0
-    for (i in 1:(n - 1)) {
-        for (j in (i + 1):n) {
-            tmp <- cor.test(C[, i], C[, j], ...)
-            p.mat[i, j] <- p.mat[j, i] <- tmp$p.value
-        }
-    }
-  colnames(p.mat) <- rownames(p.mat) <- colnames(C)
-  p.mat
-}
-# matrix of the p-value of the correlation
-p.mat <- cor.mtest(C)
-col <- colorRampPalette(c("#4477AA", "#77AADD", "#FFFFFF", "#EE9988", "#BB4444"))
-  corrplot(C, method="color", col=col(200),  
-         type="upper", order="hclust", 
-         addCoef.col = "black", # Add coefficient of correlation
-         tl.col="black", tl.srt=45, #Text label color and rotation
-         diag=FALSE 
-         )
-
-path <- paste0("../../results/", tool ,"/varpart/", condition, "_gene_CCA")
-saveToPDF(paste0(path, ".pdf"), width = 25, height = 25)
-```
-### Clean up 
-```{r}
-remove(C, 
-       info,
-       p.mat,
-       dge, 
-       dge.tech,
-       dge.filtered,
-       dge.filtered.reps,
-       dge.filtered.reps.norm,
-       lcpm,
-       log2cpm.filtered,
-       log2cpm.norm,
-       log2cpm.norm.reps,
-       log2cpm.tech)
-```
-# Save R object
-```{r}
-saveRDS(dge.filtered.norm, file = paste0("../../rObjects/", condition, "_dge.filtered.norm.rds"))
-dge.filtered.norm <- readRDS(paste0("../../rObjects/", condition, "_dge.filtered.norm.rds"))
-```
-# Design matrix
-```{r design_matrix}
-# first make sure that numerical values are numerical and factors are set as factors
-age <- as.numeric(dge.filtered.norm$samples$Age)
-RIN <- as.numeric(dge.filtered.norm$samples$RIN)
-sex <- as.factor(dge.filtered.norm$samples$Sex)
-race <- as.factor(dge.filtered.norm$samples$Race)
-group <- as.factor(dge.filtered.norm$samples$TYPE)
-
-design <- model.matrix(~ 0 + group + sex + (1|RIN))
-colnames(design) <- c(CONTROL, AD, PA, LBD, "sex", "RIN") # rename columns 
-```
-
-# Voom
-The voom method estimates the mean-variance relationship of the log-counts.
-Generates a precision weight for each observation and enters these into the limma empirical Bayes analysis pipeline.
-```{r voom}
-# no weights needed with this large sample size
-v <- voom(dge.filtered.norm, design, plot=TRUE)
-path <- paste0("../../results/", tool, "/voom/", condition, "_gene_mean_voom")
-saveToPDF(paste0(path, ".pdf"), width = 6, height = 4)
-```
-# PCA on all/the most variable genes
-Select most variable genes based on the biological 
-coefficient of variance
-```{r pca, cache=TRUE}
-# Voom transformed counts
-voomCounts <- v$E
-voomCountsMatrix <- data.matrix(voomCounts, rownames.force = NA)
-# Setting the N of genes to use
-ntop = length(dge.filtered.norm$genes$gene_id)
-# Sorting by the coefficient of variance
-means <- rowMeans(voomCountsMatrix)
-Pvars <- rowVars(voomCountsMatrix)
-cv2 <- Pvars / means ^ 2
-select <-
-  order(cv2, decreasing = TRUE)[seq_len(min(ntop, length(cv2)))]
-highly_variable_exp <- ((voomCountsMatrix)[select,])
-# Running PCA
-pca_exp <- prcomp(t(highly_variable_exp), scale = F, center = T)
-# scale a logical value indicating whether the variables should be scaled.
-# A logical value indicating whether the variables should be shifted to be zero centered.
-
-# Dataframe with the first 10 PCs
-dim1_10 <- data.frame(pca_exp$x[, 1:10])
-# Adding metadata
-pcaWithMetadata <- merge(dim1_10, dge.filtered.norm$samples, by = 0, all = TRUE)
-pcaWithMetadata$TYPE <- gsub("CONTROL_PA", "PA", pcaWithMetadata$TYPE)
-pcaWithMetadata$TYPE <- gsub("CONTROL_AD", "AD", pcaWithMetadata$TYPE)
-pcaWithMetadata$group <- factor(pcaWithMetadata$TYPE,
-                                 levels = c(CONTROL, AD, PA, LBD, NA))
-# Plotting
-ggplot(data = pcaWithMetadata, aes(
-  x = PC1,
-  y = PC2,
-  shape = group,
-  color = group
-)) +
-  geom_point(size = 2) +
-  theme_bw() +
-  scale_color_manual(values = c(control_color, AD_color,
-                                PA_color, LBD_color,
-                                "azure3")) +
-  scale_shape_manual(values = c(control_shape, AD_shape,
-                                PA_shape, LBD_shape)) +
-  theme(
-    plot.title = element_text(size = 10, face = "bold"),
-    legend.title = element_text(size = 10),
-    legend.text = element_text(size = 10),
-    axis.text.x = element_text(size = 10),
-    axis.text.y = element_text(size = 10),
-    axis.title.x = element_text(size = 10),
-    axis.title.y = element_text(size = 10)
-  ) +
-  theme(legend.title = element_blank()) +
-  xlab("PC1 ") +
-  ylab("PC2 ")
-```
-# Linear fit
-fits linear model for each gene given a series of arrays
-```{r}
-fit <- lmFit(v, design)
-coef.fit <- fit$coefficients
-head(coef.fit)
-# contrast design for differential expression
-contrasts <- makeContrasts(
-  LBDvsControl = LBD - CONTROL,
-  LBDvsAD = LBD - AD,
-  LBDvsPA = LBD - PA,
-  ADvsControl = AD - CONTROL, 
-  PAvsControl = PA - CONTROL,
-  ADvsPA = AD - PA, 
-  levels = colnames(design))
-head(contrasts)
-# save contrast names
-allComparisons <- colnames(contrasts)
-allComparisons # check
-
-# run contrast analysis
-vfit <- contrasts.fit(fit, contrasts = contrasts)
-
-# Compute differential expression based on the empirical Bayes moderation of the
-# standard errors towards a common value.
-veBayesFit <- eBayes(vfit)
-plotSA(veBayesFit, main = "Final Model: Mean-variance Trend")
-
-# save
-path <- paste0("../../results/", tool, "/voom/", condition, "_gene_final_mean_var")
-saveToPDF(paste0(path, ".pdf"), width = 6, height = 4)
-```
-
-# Save voom rObjects
-```{r save_EList}
-saveRDS(v, file = paste0("../../rObjects/", condition, "_gene_voom.rds"))
-v <- readRDS(paste0("../../rObjects/", condition, "_gene_voom.rds"))
-```
-
-# Number of DEGs
-Identify number of differential expressed genes.
-```{r decide_tests}
-pval <- 0.05
-sumTable <- 
-  summary(decideTests(
-    vfit,  # object
-    adjust.method = "BH", # by default the method = "separate"
-    p.value = pval,
-    lfc = 0  # numeric, minimum absolute log2-fold change required
-  ))
-print(paste0(" FDRq < ", pval))
-sumTable
-topTable(veBayesFit, coef = "LBDvsControl")
-```
-
-# Output DEG tables
-```{r output_DEG_tables}
-coef <- 1
-
-for (i in allComparisons) {
-  # p < 1, log2fc > 0 
-  vTopTableAll <-
-    topTable(
-      veBayesFit, 
-      coef = coef,  
-      n = Inf, 
-      p.value = 1,
-      lfc = 0 
-    )
-vTopTableAll <-
-  subset(
-    vTopTableAll,
-    select = -c(
-      score,
-      phase,
-      transcript_id,
-      transcript_type,
-      transcript_name,
-      transcript_support_level,
-      exon_number,
-      exon_id,
-      ont,
-      protein_id,
-      ccdsid
-    )
-  )
-    saveRDS(vTopTableAll, file = 
-            paste0("../../rObjects/",condition, "_", 
-                   i,"_gene_table.rds"))
-  path <- paste0("../../results/", tool, "/DEGs/",condition, "_",
-  i, "_gene_DEGs_FDRq1.00.txt", sep = "") 
-  write.table(
-    vTopTableAll,
-    path,
-    sep = "\t",
-    row.names = FALSE,
-    quote = FALSE
-  )
-  # p < 0.05, log2fc > 0
-  vTopTable1 <-
-    topTable( 
-      veBayesFit,  
-      coef = coef,  
-      n = Inf, 
-      p.value = 0.05,
-      lfc = 0
-    )
-  path <- paste0("../../results/", tool, "/DEGs/",condition, "_",
-  i, "_gene_DEGs_FDRq0.05.txt", sep = "") 
-  write.table(
-    vTopTable1,
-    path,
-    sep = "\t",
-    row.names = FALSE,
-    quote = FALSE
-  )
-  # increment 
-  coef <- coef + 1
-}
-remove(coef)
-```
-# Read in DEGs
-Read table with all genes (FDRq = 1).
-```{r read_DEG_table}
-coef <- 1
-
-for (i in allComparisons) {
-  filepath <- paste0(
-    "../../results/",
-    tool,
-    "/DEGs/",condition, "_",
-    i,
-    "_gene_DEGs_FDRq1.00.txt"
-  )
-  assign(i,
-         read.delim(
-           filepath,
-           header = TRUE,
-           sep = "\t",
-           stringsAsFactors = FALSE
-         ))
-  # increment
-  coef <- coef + 1
-}
-```
-
-# Assign colors
-Assign colors  values based on FDRq cutoff of 0.05.
-```{r assign_colors}
-color_values <- vector()
-max <- nrow(LBDvsControl)
-
-for(i in 1:max){
-  if (LBDvsControl$adj.P.Val[i] < 0.05){
-    if (LBDvsControl$logFC[i] > 0){
-      color_values <- c(color_values, 1) # 1 when logFC > 0 and FDRq < 0.05
-    }
-    else if (LBDvsControl$logFC[i] < 0){
-      color_values <- c(color_values, 2) # 2 when logFC < 0 and FDRq < 0.05
-    }
-  }
-  else{
-    color_values <- c(color_values, 3) # 3 when FDRq >= 0.05
-  }
-}
-
-LBDvsControl$color_p0.05 <- factor(color_values)
-```
-
-# Subset genes to label
-Subset the top 10 up and down-regulated genes
-```{r}
-up <- LBDvsControl[LBDvsControl$color_p0.05 == 1,]
-up10 <- up[1:10,]
-
-down <- LBDvsControl[LBDvsControl$color_p0.05 == 2,]
-down <- subset(down, down$logFC < -1.5)
-down10 <- down[1:7,]
-```
-
-# Volcano plot
-```{r volcano}
-hadjpval <- (-log10(max(
-  LBDvsControl$P.Value[LBDvsControl$adj.P.Val < 0.05], 
-  na.rm=TRUE)))
-
-p_vol <-
-  ggplot(data = LBDvsControl, 
-         aes(x = logFC,  # x-axis is logFC
-             y = -log10(P.Value),  # y-axis will be -log10 of P.Value
-             color = color_p0.05)) +  # color is based on factored color column
-  geom_point(alpha = 1.5, size = 1.7) +  # create scatterplot, alpha makes points transparent
-  theme_bw() +  # set color theme
-  theme(legend.position = "none") +  # no legend
-  scale_color_manual(values = c("red", "blue","grey")) +  # set factor colors
-  labs(
-    title = "", # no main title
-    x = expression(log[2](FC)), # x-axis title
-    y = expression(-log[10] ~ "(" ~ italic("p") ~ "-value)") # y-axis title
-  ) +
-  theme(axis.title.x = element_text(size = 10),
-        axis.text.x = element_text(size = 10)) +
-  theme(axis.title.y = element_text(size = 10),
-        axis.text.y = element_text(size = 10)) +
-  geom_hline(yintercept = hadjpval,  #  horizontal line
-                     colour = "#000000",
-                     linetype = "dashed") +
-  ggtitle("LBD vs Control\nFDRq < 0.05") +
-  theme(plot.title = element_text(size = 10)) +
-  geom_text_repel(data = up10,
-                  aes(x = logFC, y= -log10(P.Value), label = gene_name), 
-                  color = "maroon", 
-                  fontface="italic",
-                  size = 4, 
-                  max.overlaps = getOption("ggrepel.max.overlaps", default = 30)
-                  ) +
-  geom_text_repel(data = down10,
-                  aes(x = logFC, y= -log10(P.Value), label = gene_name), 
-                  color = "navyblue", 
-                  fontface="italic",
-                  size = 4, 
-                  max.overlaps = getOption("ggrepel.max.overlaps", default = 15)
-                  ) 
-p_vol
-# save
-path <- paste0("../../results/", tool, "/volcano/",condition,"_gene_volcano_FDRq0.05")
-saveToPDF(paste0(path, ".pdf"), width = 5.2, height = 5.2)
-```
-# Interactive volcanos via glimmaVolcano 
-```{r, eval = FALSE}
-glimmaVolcano(veBayesFit, coef = 1,  dge = dge.filtered.norm, groups = dge.filtered.norm$samples$TYPE, display.columns=c("gene_name", "AdjPValue", "seqnames"))
-# glimmaVolcano()
-```
-
