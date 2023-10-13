@@ -12,8 +12,8 @@ bamtools_path = "bamtools"
 
 rule all:
 		input:
-		    expand(config["rawReads"]+"{sample}_R1.fastq.gz", sample = config["sample_names"]),
-		    expand(config["rawReads"]+"{sample}_R2.fastq.gz", sample = config["sample_names"]),
+		    expand(config["bulkRNA_merged_lanes"]+"{sample}_R1.fastq.gz", sample = config["sample_names"]),
+		    expand(config["bulkRNA_merged_lanes"]+"{sample}_R2.fastq.gz", sample = config["sample_names"]),
 			expand(config["rawQC"]+"{sample}_R1_fastqc.html", sample = config["sample_names"]),
 			expand(config["rawQC"]+"{sample}_R2_fastqc.html", sample = config["sample_names"]), 
 			expand(config["trimmedReads"]+"{sample}_trimmed_R1.fastq.gz", sample = config["sample_names"]),
@@ -23,10 +23,10 @@ rule all:
 			expand(config["starAligned"]+"{sample}_STAR.bam", sample = config["sample_names"]),   	   	        		
 			expand(config["starAligned"]+"{sample}_STAR_metrics.txt", sample = config["sample_names"]),
 			expand(config["starAligned"]+"{sample}_STAR_metrics_only.txt", sample = config["sample_names"]),   	   	        		   	   	        		
-			expand(config["starAligned"]+"{sample}_STAR_Alignment_metrics.txt", sample = config["sample_names"]),   	   	        		
+			expand(config["starAligned"]+"{sample}_STAR_Alignment_metrics.txt", sample = config["sample_names"]),   	          		
 			expand(config["starAligned"]+"{sample}_Alignment_metrics_only.txt", sample = config["sample_names"]),   	        		
 
-			expand(config["starAligned_SCC"]+"{sample}_STAR_XX.bam", sample = config["female_names"]),   	   	        		
+			expand(config["starAligned_SCC"]+"{sample}_STAR_XX.bam", sample = config["female_names"]),   	   	        	
 			expand(config["starAligned_SCC"]+"{sample}_STAR_sort_XX.bam", sample = config["female_names"]),   	   	        		
 			expand(config["starAligned_SCC"]+"{sample}_STAR_sort_mkdup_XX.bam", sample = config["female_names"]),   	
 			expand(config["starAligned_SCC"]+"{sample}_STAR_sort_mkdup_rdgrp_XX.bam", sample = config["female_names"]),   	
@@ -36,7 +36,7 @@ rule all:
 			expand(config["starAligned_SCC"]+"{sample}_STAR_Alignment_metrics_XX.txt", sample = config["female_names"]),   	        		
 			expand(config["starAligned_SCC"]+"{sample}_Alignment_metrics_only_XX.txt", sample = config["female_names"]),   	        		
 
-			expand(config["starAligned_SCC"]+"{sample}_STAR_XY.bam", sample = config["male_names"]),   	   	        		
+			expand(config["starAligned_SCC"]+"{sample}_STAR_XY.bam", sample = config["male_names"]),   	   	        	
 			expand(config["starAligned_SCC"]+"{sample}_STAR_sort_XY.bam", sample = config["male_names"]),   	   	        		
 			expand(config["starAligned_SCC"]+"{sample}_STAR_sort_mkdup_XY.bam", sample = config["male_names"]),   	
 			expand(config["starAligned_SCC"]+"{sample}_STAR_sort_mkdup_rdgrp_XY.bam", sample = config["male_names"]),   	
@@ -47,7 +47,7 @@ rule all:
 			expand(config["starAligned_SCC"]+"{sample}_Alignment_metrics_only_XY.txt", sample = config["male_names"]) 	        		
 
 
-
+#---------------------
 # Steps
 #   1. RNAseq alignment. RNAseq reads are aligned via STAR two pass mode
 #   2. index
@@ -59,7 +59,7 @@ rule all:
 
 #---------------------
 # Reference genome and annotation were downloaded prior to running snakemake. 
-# prepare reference genome, create index and dictionary. 
+# prepare reference genome, create index and dictionary. See README for more information. 
 
 #---------------------
 # Concatenating fastq.gz files across lanes
@@ -84,8 +84,8 @@ rule merge_fastq:
 #---------------------
 rule raw_fastqc:
 	input:
-		in_R1 = (config["rawReads"]+"{sample}_R1.fastq.gz"),
-		in_R2 = (config["rawReads"]+"{sample}_R2.fastq.gz")
+		in_R1 = (config["bulkRNA_merged_lanes"]+"{sample}_R1.fastq.gz"),
+		in_R2 = (config["bulkRNA_merged_lanes"]+"{sample}_R2.fastq.gz")
 	output:
 		R1_zip =  (config["rawQC"]+"{sample}_R1_fastqc.zip"),
 		R1_html = (config["rawQC"]+"{sample}_R1_fastqc.html"),
@@ -112,8 +112,8 @@ rule raw_fastqc:
 #---------------------
 rule trim_bbduk:
 	input:
-		in_R1 = (config["rawReads"]+"{sample}_R1.fastq.gz"),
-		in_R2 = (config["rawReads"]+"{sample}_R2.fastq.gz")
+		in_R1 = (config["bulkRNA_merged_lanes"]+"{sample}_R1.fastq.gz"),
+		in_R2 = (config["bulkRNA_merged_lanes"]+"{sample}_R2.fastq.gz")
 	output:
 		out_R1 = (config["trimmedReads"]+"{sample}_trimmed_R1.fastq.gz"),
 		out_R2 = (config["trimmedReads"]+"{sample}_trimmed_R2.fastq.gz")
@@ -122,7 +122,7 @@ rule trim_bbduk:
 	shell:
 		"{params.bbduksh} in1={input.in_R1} in2={input.in_R2} "
 		"out1={output.out_R1} out2={output.out_R2} "
-		"ref=/references/adapters.fa "
+		"ref=/research/labs/neurology/fryer/projects/references/adapters.fa "
 		"ktrim=r k=23 mink=11 hdist=1 tpe tbo"
 		
 # KEY
