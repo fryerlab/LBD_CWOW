@@ -116,8 +116,7 @@ Main figures:
 Supplemental figures:
 1. **Fig S1:** 
 
-## Contact information 
-## Contact information
+## Contacts
 
 | Contact | Email |
 | --- | --- |
