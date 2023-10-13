@@ -3,11 +3,7 @@
 # create a new output file
 outfile = open('config.json', 'w')
 
-# get all, kidney, brain and blood sample names
 allSamples = list()
-type_LBD = list()
-LDB_type = list()
-sex = list()
 read = ["R1", "R2"]
 numSamples = 0
 
@@ -25,27 +21,24 @@ with open('sample_read_group_info.txt', 'r') as infile:
 # create header and write to outfile
 header = '''{{
     "Commment_Input_Output_Directories": "This section specifies the input and output directories for scripts",
-    "rawReads" : "/research/labs/neurology/fryer/projects/LBD_CWOW/bulkRNA/",
+    "rawReads" : "/LBD_CWOW/raw_fastq/",
     "rawQC" : "../../rawQC/",
     "trimmedReads" : "../../trimmedReads/",
     "trimmedQC" : "../../trimmedQC/",
     "starAligned" : "../../starAligned/",
     "starAligned_SCC" : "../../startAligned_SCC/",
     "bamstats" : "../../bamstats/",
-    "RNA_variants" : "../../RNA_variants", 
-    "kallisto" : "../../kallisto/",
-    "salmon" : "../../salmon/", 
 
     "Comment_Reference" : "This section specifies the location of the Sus scrofa, Ensembl reference genome",
-    "GRCh38.fa" : "/research/labs/neurology/fryer/projects/references/human/GRCh38.primary_assembly.genome.fa",
-    "GRCh38.star" : "/research/labs/neurology/fryer/projects/references/human/GRCh38_def",
-    "GRCh38.gtf" : "/research/labs/neurology/fryer/projects/references/human/gencode.v38.annotation",
+    "GRCh38.fa" : "/LBD_CWOW/references/GRCh38.primary_assembly.genome.fa",
+    "GRCh38.star" : "/LBD_CWOW/references/GRCh38_def",
+    "GRCh38.gtf" : "/LBD_CWOW/references/gencode.v38.annotation",
     
-    "GRCh38.Ymasked.fa" : "/research/labs/neurology/fryer/projects/references/human/GRCh38_Ymasked_XX.fa",
-    "GRCh38.YPARs_masked.fa" : "/research/labs/neurology/fryer/projects/references/human/GRCh38_YPARsmasked_XY.fa",
+    "GRCh38.Ymasked.fa" : "/LBD_CWOW/references/GRCh38_Ymasked_XX.fa",
+    "GRCh38.YPARs_masked.fa" : "/LBD_CWOW/references/GRCh38_YPARsmasked_XY.fa",
 
-    "GRCh38.Ymasked.star" : "/research/labs/neurology/fryer/projects/references/human/GRCh38_Ymasked_XX",
-    "GRCh38.YPARs_masked.star" : "/research/labs/neurology/fryer/projects/references/human/GRCh38_YPARsmasked_XY",
+    "GRCh38.Ymasked.star" : "/LBD_CWOW/references/GRCh38_Ymasked_XX",
+    "GRCh38.YPARs_masked.star" : "/LBD_CWOW/references/GRCh38_YPARsmasked_XY",
 
     "Comment_Sample_Info": "The following section lists the samples that are to be analyzed",
     "sample_names": {0},
@@ -96,7 +89,7 @@ with open('sample_read_group_info.txt', 'r') as infile:
 
         out = '''
     "{0}":{{
-        "fq_path": "/research/labs/neurology/fryer/projects/LBD_CWOW/bulkRNA/",
+        "fq_path": "/LBD_CWOW/raw_fastq/",
         "fq1": "{1}",
         "fq2": "{2}",
         "shortName1": "{3}",
