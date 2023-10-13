@@ -41,20 +41,14 @@ library(gridExtra)
 ```
 # User defined variables
 ```{r set_variables, warning=FALSE}
-source(here::here("/research/labs/neurology/fryer/m239830/LBD_CWOW/scripts/R", "file_paths_and_colours.R"))
+source(here::here("/LBD_CWOW/scripts/R", "file_paths_and_colours.R"))
 condition <- c("TYPE") 
 tool <- c("star")
 ```
 # Read in DGE object & metadata
 ```{r dge}
 dge.filtered.norm <- readRDS(paste0("../../rObjects/dge.filtered.norm.rds"))
-# some samples are missing RIN values. 
-# Replace NA with median RIN. 
-# This is necessary to be able include RIN as a covariate in voom
-# fill missing values with median
 dge.filtered.norm$samples$RIN <- impute(dge.filtered.norm$samples$RIN, median)
-# one sample is missing VaD information
-dge.filtered.norm$samples$VaD <- impute(dge.filtered.norm$samples$VaD, median)
 dge.filtered.norm$samples$flowcell_and_lane <- factor(dge.filtered.norm$samples$flowcell_and_lane)
 dge.filtered.norm$samples$APOE <- factor(dge.filtered.norm$samples$APOE)
 
@@ -137,7 +131,7 @@ voom_with_weights <-
 voomCounts <- voom_with_weights$E
 ```
 # Counts
-The voom method (Law et al., 2014) stabilizes variance of RNA-seq data. It does so by identifying the mean–variance relationship of the data at the gene-level.
+The voom method (Law et al., 2014) stabilizes the variance of RNA-seq data. It does so by identifying the mean–variance relationship of the data at the gene-level.
 WGCNA reads as input counts data that is stabilized. 
 ```{r counts}
 # transpose data to be in the correct format for WGCNA 
@@ -428,7 +422,7 @@ write.xlsx(list_of_datasets, file = paste0(
 color_counts <- as.data.frame(bwnet$colors) # color modules 
 color_counts$gene_id <- row.names(color_counts) # gene_ids as row names
 colnames(color_counts)[1] ="hcolors"
-color_counts$hcolors <- factor(color_counts$hcolors, levels = rev(plot_colors)) # arrange to match pervious plot 
+color_counts$hcolors <- factor(color_counts$hcolors, levels = rev(plot_colors)) # arrange to match previous plot 
 rev_plot_colors <- rev(plot_colors)
 ggplot(color_counts, aes(x=hcolors)) + 
     geom_bar(fill = rev_plot_colors) +
