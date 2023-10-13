@@ -1,5 +1,5 @@
 ---
-title: "Differential expression in LBD samples"
+title: "Sex check"
 author: "Kimberly Olney, Ph.D."
 date: "01/05/2023"
 output:
@@ -35,20 +35,7 @@ Samples are aligned to a default human reference genome GRCh38. See Snakemake pi
 Read in the STAR aligned counts files for each sample. 
 ```{r read_data}
 # read in metadata
-#metadata <- vroom(paste0(pathToRawData, "metadata_cleaned.tsv"))
-
-# updated because we removed some samples due to poor quality. 
-# Now read in this table. 
-metadata <-
-  read.delim(
-    "/research/labs/neurology/fryer/m239830/LBD_CWOW/rObjects/metadata_A-T-S_scores.txt"
-  )
-metadata$TYPE <- gsub(" - ", "_", metadata$TYPE) 
-# RNA integrity number (RIN)
-RIN <- vroom(paste0(pathToRawData, "RIN.tsv"))
-RIN$NPID <- RIN$Sample
-# Add RIN information to metadata
-metadata <- merge(metadata, RIN, by = "NPID", all = TRUE)
+metadata <- vroom("../metadata.tsv"))
 
 # read in snakemake sample information
 sample_read_group_info <-
