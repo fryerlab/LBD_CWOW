@@ -91,8 +91,8 @@ To have the sequences align to a reference genome informed on the sex chromosome
 Counts data obtained from `RNA.alignment.Snakefile` along with sample information is now ready to be read into R for further examination. The R scripts will source two additional R files that contain libraries and visualization variables. 
 
 Overview of R scripts and functions:
-1. 01
-2. 02
+1. `01_sex_check.Rmd` evaluates the counts data obtained from aligning the reads to the default reference genome and determines if the reported sex matches the inferred sex for each individual. This script is optional and may be skipped as all samples have already been sex checked and reported sex matched inferred sex. 
+2. 02 
 3. 03
 4. 04
 5. 05
