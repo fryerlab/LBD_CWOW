@@ -88,7 +88,6 @@ dge <- DGEList(counts = counts,
                genes = genes.gtf)
 
 table(dge$samples$TYPE)
-table(dge$samples$ATS_names)
 ```
 # Save R object
 ```{r rOjects}
@@ -201,7 +200,6 @@ metadata$normfactors <- normfactors
 
 # examine normalization factors 
 plot(metadata$TYPE, metadata$normfactors)
-plot(metadata$ATS_names, metadata$normfactors)
 ```
 
 ```{r plot_RIN}
