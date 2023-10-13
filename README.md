@@ -84,7 +84,7 @@ Supplemental figures:
 ## Contact information
 
 | Contact | Email |
-| --- | --- | --- |
+| --- | --- |
 | Kimberly Olney, PhD | olney.kimberly@mayo.edu |
 | John Fryer, PhD | fryer.john@mayo.edu |
 
