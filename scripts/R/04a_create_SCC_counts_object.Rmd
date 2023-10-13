@@ -21,13 +21,8 @@ source(here::here("scripts/R", "gtf_path.R"))
 condition <- c("") # change condition to rename files for comparing between different approaches. 
 tool = c("star")
 typeOfCount <-  c(".bamReadsPerGene.out.tab")
-metadata <-
-  read.delim(
-    "/research/labs/neurology/fryer/m239830/LBD_CWOW/rObjects/metadata_A-T-S_scores.txt"
-  )
 ```
 # Read data
-### Metadata
 ```{r read_data}
 # example of file naming:
 # NA12-254_FCHCLTJDMXY_L1_STAR_XY.bamReadsPerGene.out.tab
@@ -44,7 +39,7 @@ count_files <-
 names(count_files) <- paste0(metadata$NPID)
 # add sample count path information to metadata
 metadata$path <- count_files
-# make sure there is only unique paths
+# make sure there are only unique paths
 ```
 ### Create a counts matrix
 ```{r counts_matrix}
@@ -95,7 +90,6 @@ dge <- DGEList(counts = counts,
 table(dge$samples$TYPE)
 table(dge$samples$ATS_names)
 ```
-
 # Save R object
 ```{r rOjects}
 saveRDS(dge, file = paste0("../../rObjects/", condition, "dge.raw.rds"))
@@ -146,11 +140,14 @@ saveToPDF(paste0(path, ".pdf"), width = 5.2, height = 5.2)
 ```
 
 # Filtering and RIN check
-The filterByExpr() function in the edgeR package determines which genes have a 
-great enough count value to keep.  
+The filterByExpr() function in the edgeR package determines which genes have a great enough count value to keep.  
 We will filter by group.  
-This means at least 6 samples (6 is the smallest group sample size) must express a minimum count of 
-1 (in cpm, default value is 10).
+```{r}
+# before filtering
+L <- mean(dge$samples$lib.size) * 1e-6
+M <- median(dge$samples$lib.size) * 1e-6
+c(L, M)
+```
 ```{r filter_counts}
 # first filter by expression
 dim(dge)
@@ -158,7 +155,7 @@ keep.expr <-
   filterByExpr(
     dge,
     group = dge$samples$TYPE, # by disease groups
-    min.count = 1, # min count of 1 CPM 
+    min.count = 10, # min count of 10
     min.prop = 0.3 # at least 30% of the smallest group 
   )
 dge.filtered <- dge[keep.expr, , keep.lib.sizes = FALSE]
@@ -310,37 +307,6 @@ for (i in 2:nsamples) {
 # save
 path <- paste0("../../results/", tool, "/library/TYPE.gene_density")
 saveToPDF(paste0(path, ".pdf"), width = 7, height = 5)
-
-# set graphical parameter
-par(mfrow = c(1,3))
-# set colors
-colors <- colorbindColors[dge$samples$ATS_names]
-nsamples <- ncol(dge)
-# First, plot the first column of the log2cpm.tech density
-plot(density(log2cpm.tech[,1]), col = colors[1], lwd = 2, ylim = c(0,0.5), 
-     las = 2, main = "A. Raw", xlab = expression('Log'[2]~CPM))
-# For each sample plot the lcpm density
-for (i in 2:nsamples){
-  den <- density(log2cpm.tech[,i]) #subset each column
-  lines(den$x, den$y, col = colors[i], lwd = 2) 
-}
-# Second, plot log2cpm.filtered
-plot(density(log2cpm.filtered[,1]), col = colors[1], lwd = 2, ylim = c(0,0.5), 
-     las = 2, main = "B. Filtered", xlab = expression('Log'[2]~CPM))
-for (i in 2:nsamples) {
-  den <- density(log2cpm.filtered[,i])
-  lines(den$x, den$y, col = colors[i], lwd = 2)
-}
-# Third, plot log2cpm.norm
-plot(density(log2cpm.norm[,1]), col = colors[1], lwd = 2, ylim = c(0,0.5), 
-     las = 2, main = "C. TMM", xlab = expression('Log'[2]~CPM))
-for (i in 2:nsamples) {
-  den <- density(log2cpm.norm[,i])
-  lines(den$x, den$y, col = colors[i], lwd = 2)
-}
-# save
-path <- paste0("../../results/", tool, "/library/ATS.gene_density")
-saveToPDF(paste0(path, ".pdf"), width = 7, height = 5)
 ```
 clean up 
 ```{r}
@@ -348,75 +314,8 @@ remove(box,
        res)
 ```
 
-# GOI gene of interest histogram
-```{r GOI}
-lcpm <- edgeR::cpm(dge.filtered.norm$counts, log = TRUE)
-cpm <- edgeR::cpm(dge.filtered.norm$counts, log = FALSE)
-
-# using CPM data
-cpm <- as.data.frame(cpm)
-cpm$gene_id  <- rownames(cpm)
-cpm_genes <- merge(cpm, dge.filtered.norm$genes, by = "gene_id")
-goi <- subset(cpm_genes, gene_name == "TTR")
-goi <- as.vector(goi[1:620]) # get only sample counts data. Columns 2-620 (i.e. 619 samples)
-goi_melt <- melt(goi) # transform 
-summary(goi_melt$value) 
-colnames(goi_melt)[2] <- "NPID"
-goi_melt_sample_info <-
-  merge(goi_melt, dge.filtered.norm$samples, by = "NPID")
-df <-
-  with(goi_melt_sample_info, goi_melt_sample_info[order(TYPE, NPID), ])
-df$NPID <- factor(df$NPID, levels = df$NPID)
-# column plot
-ggplot(df, aes(x = NPID, y = value, fill = TYPE)) +
-  geom_col() +
-  labs(title = "TTR", x = NULL, y = NULL) +
-  xlab("TYPE") + ylab("CPM") +
-  theme_bw() +
-  scale_fill_manual(values = TypeColors)
-path <- paste0("../../results/", tool, "/goi/TTR.CPM.bar")
-saveToPDF(paste0(path, ".pdf"), width = 8, height = 5)
-
-# using log2CPM data
-lcpm <- as.data.frame(lcpm)
-lcpm$gene_id  <- rownames(lcpm)
-lcpm_genes <- merge(lcpm, dge.filtered.norm$genes, by = "gene_id")
-goi <- subset(lcpm_genes, gene_name == "TTR")
-goi <- as.vector(goi[1:620])
-goi_melt <- melt(goi)
-summary(goi_melt$value)
-colnames(goi_melt)[2] <- "NPID"
-goi_melt_sample_info <-
-  merge(goi_melt, dge.filtered.norm$samples, by = "NPID")
-df <-
-  with(goi_melt_sample_info, goi_melt_sample_info[order(TYPE, NPID), ])
-df$NPID <- factor(df$NPID, levels = df$NPID)
-ggplot(df, aes(x = NPID, y = value, fill = TYPE)) +
-  geom_col() +
-  labs(title = "TTR", x = NULL, y = NULL) +
-  xlab("TYPE") + ylab("log2(CPM)") +
-  theme_bw() +
-  scale_fill_manual(values = TypeColors)
-path <- paste0("../../results/", tool, "/goi/TTR.log2CPM.bar")
-saveToPDF(paste0(path, ".pdf"), width = 8, height = 5)
-```
-clean up 
-```{r}
-remove(
-       dge, 
-       dge.filtered,
-       lcpm,
-       log2cpm.filtered,
-       log2cpm.norm,
-       log2cpm.tech)
-```
-
 # Save R object
 ```{r save_dge_final}
 saveRDS(dge.filtered.norm, file = paste0("../../rObjects/dge.filtered.norm.rds"))
 check_info <- dge.filtered.norm$samples
-```
-
-```{r}
-sessionInfo()
 ```
