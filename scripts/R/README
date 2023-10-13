@@ -1,9 +1,0 @@
-Steps
-
-1. 01_def_align_star_counts_gene_DE.Rmd
- This script will sex check samples and ouput a text file with inferred sex information. 
-2. 02_update_metadata.Rmd
- This script will update the metadata file to include RIN, inferred sex, and WGS sample information
-3. 03_SCC_align_star_counts_gene_DE.Rmd
- Once the samples have been realigned to the sex chromosome complement via the snakemake pipeline (see snakemake folder), then this R script will call those SCC aligned counts file for DE. 
-4. 04_SCC_align_DESeq2_gene_DE.Rmd
