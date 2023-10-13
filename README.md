@@ -42,6 +42,9 @@ alias gatk='/path/to/gatk-package/gatk'
 ```
 ## Download fastq files and human reference genome 
 ### Download the raw fastq files from the SRA PRJNA1023207
+The raw fast files may be obtained from SRA PRJNA1023207. There are 619 individuals. Samples were sequenced to ~50 million (M) 2 × 100 bp paired-end reads across two lanes. Total storage requirements for the raw gzip sequences exceeded 3TB. Information on how to download from SRA may be found [here](https://www.ncbi.nlm.nih.gov/sra/docs/sradownload/). 
+
+Download or move the raw sequences to the raw_fastq folder. 
 
 ### Download the human GRCh38 reference genome and create sex chromosome complement reference genomes. 
 
