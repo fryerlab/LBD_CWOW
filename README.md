@@ -83,7 +83,7 @@ python create_RNA_config.py
 ```
 snakemake -s RNA.alignment.Snakefile -j 100 --rerun-incomplete 
 ```
-The above command will submit 100 jobs in parallel and re-run any incomplete jobs. The outputs will include: fastqc reports, BAM files, gene-level counts data, and RNA metrics. Details regarding each processing step are outlined within the `RNA.alignment.Snakefile`. 
+The above command will submit 100 jobs in parallel and re-run any incomplete jobs. The outputs will include fastqc reports, BAM files, gene-level counts data, and RNA metrics. Details regarding each processing step are outlined within the `RNA.alignment.Snakefile`. 
 
 To have the sequences align to a reference genome informed on the sex chromosome complement, create a male and female sample ID list within the `RNA.config.json` file. See the premade `RNA.config.json` file located in `scripts/snakemake/` for the list of male and female sample IDs. The individuals have already been sex checked, see Olney et al. 202x for more details. 
 
@@ -93,8 +93,8 @@ Counts data obtained from `RNA.alignment.Snakefile` along with sample informatio
 Overview of R scripts and functions:
 1. `01_sex_check.Rmd` evaluates the counts data obtained from aligning the reads to the default reference genome and determines if the reported sex matches the inferred sex for each individual. This script is optional and may be skipped as all samples have already been sex checked and reported sex matched inferred sex. 
 2. `02_metadata_and_alignment_mertic_assessment.Rmd` evaluates and plots metadata and alignment metric information among the disease types and between the sexes. The alignment metrics have already been added to the `metadata.tsv` file and thus this script is optional and may be skipped. 
-3. `03_create_dge_object.Rmd` will collect counts data for each sample and create an DGEList object which wholds the dataset to be analysed by edgeR and the subsequent calculations performed on the dataset. Specifically the DGEList object contains counts, library size, norm.factors, group and metadata information, and gene annotation information. The 03a script will also remove MT genes, retain only protein coding genes, and filter to remove lowly expressed genes. 
-4. 04
+3. `03_create_dge_object.Rmd` will collect counts data for each sample and create an DGEList object which holds the dataset to be analyzed by edgeR and the subsequent calculations performed on the dataset. Specifically, the DGEList object contains counts, library size, norm.factors, group and metadata information, and gene annotation information. The 03a script will also remove MT genes, retain only protein coding genes, and filter to remove lowly expressed genes. 
+4. `04_assess_variance.Rmd` will run variance partitioner to quantify sources of variation. Additionally, the script will perform a forward stepwise regression Bayesian information criterion (BIC) to determine the best model.   
 5. 05
 6. 06
 7. 07
