@@ -85,7 +85,7 @@ snakemake -s RNA.alignment.Snakefile -j 100 --rerun-incomplete
 ```
 The above command will submit 100 jobs in parallel and re-run any incomplete jobs. 
 
-
+The individuals have already been sex checked, see Olney et al. 202x for more details. To have the sequences align to a reference genome informed on the sex chromosome complement, create a male and female sample ID list within the `RNA.config.json` file. See the premade The premade`RNA.config.json` file located in `scripts/snakemake/` for the list of male and female sample IDs. 
 
 ## Bulk RNAseq gene differential expression analysis 
 
