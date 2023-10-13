@@ -88,7 +88,19 @@ The above command will submit 100 jobs in parallel and re-run any incomplete job
 To have the sequences align to a reference genome informed on the sex chromosome complement, create a male and female sample ID list within the `RNA.config.json` file. See the premade `RNA.config.json` file located in `scripts/snakemake/` for the list of male and female sample IDs. The individuals have already been sex checked, see Olney et al. 202x for more details. 
 
 ## Bulk RNAseq gene differential expression analysis 
-Counts data obtained from `RNA.alignment.Snakefile` along with sample information is now ready to be read into R for further examination. 
+Counts data obtained from `RNA.alignment.Snakefile` along with sample information is now ready to be read into R for further examination. The R scripts will source two additional R files that contain libraries and visualization variables. 
+
+Overview of R scripts and functions:
+1. 01
+2. 02
+3. 03
+4. 04
+5. 05
+6. 06
+7. 07
+8. 08
+9. 09
+10. `file_paths_and_colors.R`
 
 ## Manuscript figures 
 Scripts to make the following figures can be found under `scripts/R/manuscript_figures/`
