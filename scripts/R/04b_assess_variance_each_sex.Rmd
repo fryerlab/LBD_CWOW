@@ -1,5 +1,5 @@
 ---
-title: "Variance in expression data"
+title: "Variance in expression data within each sex"
 author: "Kimberly Olney, Ph.D."
 date: "04/05/2023"
 output:
@@ -9,6 +9,7 @@ output:
 params:
   args: myarg
 ---
+This script will assess sources of variation in the expression data and determine the most parsimonious model for differential expression analysis. 
 # Setup
 ```{r setup}
 knitr::opts_knit$set(root.dir = ".")
@@ -24,13 +25,9 @@ tool = c("star")
 # Read in DGE object & metadata
 ```{r dge}
 dge.filtered.norm <- readRDS(paste0("../../rObjects/dge.filtered.norm.rds"))
-# some samples are missing RIN values. 
+# Four samples are missing RIN values. 
 # Replace NA with median RIN. 
-# This is necessary to be able include RIN as a covariate in voom
-# fill missing values with median
 dge.filtered.norm$samples$RIN <- impute(dge.filtered.norm$samples$RIN, median)
-# one sample is missing VaD information
-dge.filtered.norm$samples$VaD <- impute(dge.filtered.norm$samples$VaD, median)
 dge.filtered.norm$samples$flowcell_and_lane <- factor(dge.filtered.norm$samples$flowcell_and_lane)
 dge.filtered.norm$samples$APOE <- factor(dge.filtered.norm$samples$APOE)
 
@@ -147,7 +144,7 @@ form_varPart <- ~ (1|TYPE_sex_inferred) +
   RIN +
   ENO2 
 
-# fit model and extract variance percents
+# fit model and extract variance percent
 varPart <- fitExtractVarPartModel(voomCounts, form_varPart, info_with_scale,
                                   showWarnings=FALSE)
 ```
@@ -222,10 +219,10 @@ saveToPDF(paste0(path, ".pdf"), width = 8, height = 8)
 # BIC with forward stepwise regression
 First, we will scale some of the continuous variables. 
 In regression, it is often recommended to scale the features so that the predictors have a mean of 0. This makes it easier to interpret the intercept term as the expected value of Y when the predictor values are set to their means.
-scale is generic function whose default method centers and/or scales the columns of a numeric matrix.
+scale is a generic function whose default method centers and/or scales the columns of a numeric matrix.
 
-Secondly, obtian voom$E counts to use in the BIC. 
-Finally, perform forwards stepwise regression Bayesian information criterion (BIC) to determine the best model. 
+Secondly, obtain voom$E counts to use in the BIC. 
+Finally, perform forward stepwise regression Bayesian information criterion (BIC) to determine the best model. 
 see: https://rdrr.io/github/GabrielHoffman/mvIC/man/mvIC_fit.html 
 ```{r BIC, eval = FALSE}
 baseFormula <- ~ (1 | TYPE_sex_inferred)
@@ -351,16 +348,19 @@ myDreamContrasts <- c(
   ADvsControl = "(TYPE_sex_inferredAD_male + TYPE_sex_inferredAD_female)/2 - (TYPE_sex_inferredCONTROL_male + TYPE_sex_inferredCONTROL_female)/2",
   PAvsControl = "(TYPE_sex_inferredPA_male + TYPE_sex_inferredPA_female)/2 - (TYPE_sex_inferredCONTROL_male + TYPE_sex_inferredCONTROL_female)/2",
   LBDvsControl = "(TYPE_sex_inferredLBD_male + TYPE_sex_inferredLBD_female)/2 - (TYPE_sex_inferredCONTROL_male + TYPE_sex_inferredCONTROL_female)/2",
+ 
   # sex differences - effect of sex 
   sex_diff_Control = "TYPE_sex_inferredCONTROL_female -TYPE_sex_inferredCONTROL_male", 
   sex_diff_AD = "TYPE_sex_inferredAD_female - TYPE_sex_inferredAD_male",
   sex_diff_PA = "TYPE_sex_inferredPA_female - TYPE_sex_inferredPA_male",
   sex_diff_LBD = "TYPE_sex_inferredLBD_female -TYPE_sex_inferredLBD_male",
+  
   # effect of disease within males 
   male_ADvsControl = "TYPE_sex_inferredAD_male - TYPE_sex_inferredCONTROL_male",
   male_PAvsControl = "TYPE_sex_inferredPA_male - TYPE_sex_inferredCONTROL_male",
   male_LBDvsControl = "TYPE_sex_inferredLBD_male - TYPE_sex_inferredCONTROL_male",
   male_LBDvsAD = "TYPE_sex_inferredLBD_male - TYPE_sex_inferredAD_male",
+  
   # effect of disease within females 
   female_ADvsControl = "TYPE_sex_inferredAD_female - TYPE_sex_inferredCONTROL_female",
   female_PAvsControl = "TYPE_sex_inferredPA_female - TYPE_sex_inferredCONTROL_female",
@@ -610,7 +610,7 @@ ggplot(data = pcaWithMetadata, aes(x = PC5, y = PC6, shape = sex_inferred, color
 # Info with PCA output 
 ```{r}
 write.table(sumTable, 
-            paste0("../../rObjects/", condition, ".metadata.PCA.txt"), 
+            paste0("../../rObjects/", condition, ".metadata.PCA.sex.txt"), 
             quote = FALSE, sep = "\t")
 
 ```
@@ -662,13 +662,7 @@ col <- colorRampPalette(c("#4477AA", "#77AADD", "#FFFFFF", "#EE9988", "#BB4444")
 path <- paste0("../../results/", tool ,"/varpart/", condition, ".CCA_PC1_10")
 saveToPDF(paste0(path, ".pdf"), width = 20, height = 20)
 ```
-# Glimma
-```{r}
-Sys.setenv(RSTUDIO_PANDOC="/usr/local/biotools/pandoc/3.1.2/bin")
-glimmaMDS(dge.filtered.norm)
-genes <- genes[,c(1,10,12)]
-glimmaVolcano(veBayesFit, dge = dge.filtered.norm, coef = "male_XY_LBDvsContro", counts = dge.filtered.norm$counts, anno = genes)
-```
+
 
 ```{r}
 sessionInfo()
