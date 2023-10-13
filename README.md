@@ -42,14 +42,17 @@ alias gatk='/path/to/gatk-package/gatk'
 ```
 ## Download fastq files and human reference genome 
 ### Download the raw fastq files from the SRA PRJNA1023207
-The raw fastq files may be obtained from SRA PRJNA1023207. There are 619 individuals. Samples were sequenced to ~50 million (M) 2 × 100 bp paired-end reads across two lanes. Total storage requirements for the raw gzip sequences exceedes 3TB. Information on how to download from SRA may be found [here](https://www.ncbi.nlm.nih.gov/sra/docs/sradownload/). 
+The raw fastq files may be obtained from SRA PRJNA1023207. There are 619 individuals. Samples were sequenced to ~50 million (M) 2 × 100 bp paired-end reads across two lanes. Total storage requirements for the raw gzip sequences exceed 3TB. Information on how to download from SRA may be found [here](https://www.ncbi.nlm.nih.gov/sra/docs/sradownload/). 
 
 Download or move the raw sequences to the raw_fastq folder. 
 
 ### Download the human GRCh38 reference genome and create sex chromosome complement reference genomes. 
 Reads were aligned to the default gencode human GRCh38 reference genome. Samples were sex checked, and then samples were re-sequenced to a reference genome informed on the sex chromosome complement (SCC) of the sample. See [Olney et al. 2020 Biol Sex Differ](https://bsd.biomedcentral.com/articles/10.1186/s13293-020-00312-9) for more details about the SCC approach. 
 
-Download the gencode GRCh38 reference genome and gene annotation file. First, change the working directory to the references folder OR once download is complete, move the files to the references folder. 
+Download the gencode GRCh38 reference genome and gene annotation file. First, change the working directory to the references folder OR once the download is complete, move the files to the references folder. 
+```
+cd references
+```
 ```
 wget http://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_38/GRCh38.primary_assembly.genome.fa.gz
 wget http://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_38/gencode.v38.annotation.gtf.gz
