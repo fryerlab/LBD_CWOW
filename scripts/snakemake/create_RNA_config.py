@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 # create a new output file
-outfile = open('config.json', 'w')
+outfile = open('RNA.config.json', 'w')
 
 allSamples = list()
 read = ["R1", "R2"]
@@ -10,7 +10,6 @@ numSamples = 0
 with open('sample_read_group_info.txt', 'r') as infile:
     for line in infile:
         numSamples += 1
-
         line = line.replace(".", "_")
         split = line.split()
         sampleAttributes = split[0].split('_') # NA00-190.FCH5MYFDMXY_L1_R1_ITCTCTACT-CGCGGTTC.fastq.gz 
@@ -30,7 +29,7 @@ header = '''{{
     "starAligned_SCC" : "../../startAligned_SCC/",
     "bamstats" : "../../bamstats/",
 
-    "Comment_Reference" : "This section specifies the location of the Sus scrofa, Ensembl reference genome",
+    "Comment_Reference" : "This section specifies the location of the human reference genome",
     "GRCh38.fa" : "/LBD_CWOW/references/GRCh38.primary_assembly.genome.fa",
     "GRCh38.star" : "/LBD_CWOW/references/GRCh38_def",
     "GRCh38.gtf" : "/LBD_CWOW/references/gencode.v38.annotation",
