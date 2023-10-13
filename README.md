@@ -88,33 +88,30 @@ The above command will submit 100 jobs in parallel and re-run any incomplete job
 To have the sequences align to a reference genome informed on the sex chromosome complement, create a male and female sample ID list within the `RNA.config.json` file. See the premade `RNA.config.json` file located in `scripts/snakemake/` for the list of male and female sample IDs. The individuals have already been sex checked, see Olney et al. 202x for more details. 
 
 ## Bulk RNAseq gene differential expression analysis 
-Counts data obtained from `RNA.alignment.Snakefile` along with sample information is now ready to be read into R for further examination. The R scripts will source two additional R files that contain libraries and visualization variables. 
+Counts data obtained from `RNA.alignment.Snakefile` along with sample information is now ready to be read into R for further examination. The R scripts will source two  R files that contain libraries and visualization variables. 
 
-Overview of R scripts and functions:
+Source files:
+a. `file_paths_and_colors.R` This script will be sourced in the  R scripts listed below to load the necessary libraries, read in the metadata table, and define colors and shapes for each disease type and genetic sex.
+b. `gtf_path.R` This script will be sourced in only some of the R scripts listed above. The script will load in the human gene annotation file that is needed for some of the downstream analyses. 
+
+Overview of R scripts:
 1. `01_sex_check.Rmd` evaluates the counts data obtained from aligning the reads to the default reference genome and determines if the reported sex matches the inferred sex for each individual. This script is optional and may be skipped as all samples have already been sex checked and reported sex matched inferred sex. 
 2. `02_metadata_and_alignment_mertic_assessment.Rmd` evaluates and plots metadata and alignment metric information among the disease types and between the sexes. The alignment metrics have already been added to the `metadata.tsv` file and thus this script is optional and may be skipped. 
 3. `03_create_dge_object.Rmd` will collect counts data for each sample and create an DGEList object which holds the dataset to be analyzed by edgeR and the subsequent calculations performed on the dataset. Specifically, the DGEList object contains counts, library size, norm.factors, group and metadata information, and gene annotation information. The 03a script will also remove MT genes, retain only protein coding genes, and filter to remove lowly expressed genes. 
-4. `04_assess_variance.Rmd` will run variance partitioner to quantify sources of variation. Additionally, the script will perform a forward stepwise regression Bayesian information criterion (BIC) to determine the best model.   
-5. 05
-6. 06
-7. 07
-8. 08
-9. 09
-10. `file_paths_and_colors.R` This script will be sourced in the above R scripts to load the necessary libraries, read in the metadata table, and define colors and shapes for each disease type and genetic sex.
-11. `gtf_path.R` This script will be sourced in only some of the R scripts listed above. The script will load in the human gene annotation file that is needed for some of the downstream analyses. 
+4. `04_assess_variance.Rmd` will run variance partitioner to quantify sources of variation. Additionally, the script will perform a forward stepwise regression Bayesian information criterion (BIC) to determine the best model and then perform differential expression analysis among pairwise groups. The optional `04b_assess_variance_sex.Rmd` script assesses sources of variation in expression data and performs differential expression analysis within each genetic sex. 
+5. `05_DEGs.Rmd` will generate volcano plots and differentially expressed gene (DEG) tables for all pairwise comparisons. The optional `05_DEGs_sex.Rmd` will generate volcano plots and DEGs tables for each sex separately and examine sex differential expression patterns. 
+6. `06_WGCNA.Rmd`
+
 
 ## Manuscript figures 
 Scripts to make the following figures can be found under `scripts/R/manuscript_figures/`
 
 Main figures:
-1. **Figure 1:**
-2. **Figure 2:** 
-3. **Figure 3:** 
-4. **Figure 4:** 
-5. **Figure 5:** 
-
-Supplemental figures:
-1. **Fig S1:** 
+ **Figure 1:**
+ **Figure 2:** 
+ **Figure 3:** 
+ **Figure 4:** 
+ **Figure 5:** 
 
 ## Contacts
 
