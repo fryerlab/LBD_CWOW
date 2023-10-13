@@ -9,6 +9,7 @@ output:
 params:
   args: myarg
 ---
+This script will assess sources of variation in the expression data and determine the most parsimonious model for differential expression analysis. 
 # Setup
 ```{r setup}
 knitr::opts_knit$set(root.dir = ".")
@@ -16,28 +17,26 @@ knitr::opts_knit$set(root.dir = ".")
 
 # User defined variables
 ```{r set_variables, warning=FALSE}
-source(here::here("/research/labs/neurology/fryer/m239830/LBD_CWOW/scripts/R", "file_paths_and_colours.R"))
-source(here::here("/research/labs/neurology/fryer/m239830/LBD_CWOW/scripts/R", "gtf_path.R"))
+source(here::here("/LBD_CWOW/scripts/R", "file_paths_and_colours.R"))
+source(here::here("/LBD_CWOW/scripts/R", "gtf_path.R"))
 condition <- c("TYPE") #  TYPE
 tool <- c("star")
 ```
 # Read in DGE object & metadata
 ```{r dge}
 dge.filtered.norm <- readRDS(paste0("../../rObjects/dge.filtered.norm.rds"))
-# some samples are missing RIN values. 
-# Replace NA with median RIN. 
-# This is necessary to be able include RIN as a covariate in voom
+# Four samples are missing RIN values. 
+# Replace NA with median RIN. This is a necessary evil in order to assess variation explained by RIN. 
 # fill missing values with median
 dge.filtered.norm$samples$RIN <- impute(dge.filtered.norm$samples$RIN, median)
-# one sample is missing VaD information
-dge.filtered.norm$samples$VaD <- impute(dge.filtered.norm$samples$VaD, median)
+# set factors 
 dge.filtered.norm$samples$flowcell_and_lane <- factor(dge.filtered.norm$samples$flowcell_and_lane)
 dge.filtered.norm$samples$APOE <- factor(dge.filtered.norm$samples$APOE)
 
 info <- as.data.frame(dge.filtered.norm$samples)
 genes <- dge.filtered.norm$genes
 gene_name <- genes$gene_name
-saveRDS(gene_name, file ="/research/labs/neurology/fryer/m239830/LBD_CWOW/rObjects/gene_tables/gene_options.rds")
+saveRDS(gene_name, file ="/LBD_CWOW/rObjects/gene_tables/gene_options.rds")
 ```
 
 # Add biomarker expression to dge metadata 
@@ -63,7 +62,7 @@ for (i in biomarkers) {
 }
 
 # add gene expression values into one dataframe 
-# put all data frames into list
+# put all data frames into a list
 df_list <- list(ENO2, OLIG2, CD34, P2RY12, GFAP)
 
 # merge all data frames in list
@@ -118,7 +117,7 @@ saveToPDF(paste0(path, ".pdf"), width = 6, height = 4)
 voomCounts <- voom_with_weights$E
 ```
 # Fit variance 
-variancePartition quantifies and interprets multiple sources of biological and technical variation in gene expression experiments. The package a linear mixed model to quantify variation in gene expression attributable to individual, tissue, time point, or technical variables.
+variancePartition quantifies and interprets multiple sources of biological and technical variation in gene expression experiments. The package uses a linear mixed model to quantify variation in gene expression attributable to individual, tissue, time point, or technical variables.
 ```{r varpart}
 form_varPart <- ~ (1|TYPE) + 
   (1|sex_inferred) + 
@@ -128,14 +127,15 @@ form_varPart <- ~ (1|TYPE) +
   PCT_INTRONIC_BASES +
   RIN +
   ENO2 
+
+# Determined to explain little of the variation and have been removed
 #  GFAP +
 #  CD34 +
 #  P2RY12 +
 #  OLIG2 +
 #  Brain.wt +
 
-
-# fit model and extract variance percents
+# fit model and extract variance percent
 varPart <- fitExtractVarPartModel(voomCounts, form_varPart, info_with_scale,
                                   showWarnings=FALSE)
 ```
@@ -191,7 +191,7 @@ write.table(
   quote = FALSE
 )
 ```
-# CCA 
+# CCA - Canonical Correlation Analysis
 ```{r}
 form <- ~ TYPE + 
   sex_inferred + 
@@ -222,10 +222,10 @@ saveToPDF(paste0(path, ".pdf"), width = 8, height = 8)
 # BIC with forward stepwise regression
 First, we will scale some of the continuous variables. 
 In regression, it is often recommended to scale the features so that the predictors have a mean of 0. This makes it easier to interpret the intercept term as the expected value of Y when the predictor values are set to their means.
-scale is generic function whose default method centers and/or scales the columns of a numeric matrix.
+scale is a generic function whose default method centers and/or scales the columns of a numeric matrix.
 
-Secondly, obtian voom$E counts to use in the BIC. 
-Finally, perform forwards stepwise regression Bayesian information criterion (BIC) to determine the best model. 
+Secondly, obtain voom$E counts to use in the BIC. 
+Finally, perform forward stepwise regression Bayesian information criterion (BIC) to determine the best model. 
 see: https://rdrr.io/github/GabrielHoffman/mvIC/man/mvIC_fit.html 
 ```{r BIC, eval = FALSE}
 baseFormula <- ~ (1 | TYPE)
@@ -279,10 +279,6 @@ bestModel_voomcounts = mvForwardStepwise(voomCounts,
                                          variables = variables)
 bestModel_voomcounts
 ```
-
-Base model: ~ (1 | TYPE) + ENO2 + (1 | flowcell_and_lane) + (1 | sex_inferred) + PCT_CODING_BASES + PCT_INTRONIC_BASES + PCT_INTERGENIC_BASES + RIN
-	evaluating: + sex_inferred:Brain.wt                   
-Best model delta: 502.2
 
 Final model:
   ~ (1 | TYPE) + ENO2 + (1 | flowcell_and_lane) + (1 | sex_inferred) + PCT_CODING_BASES + PCT_INTRONIC_BASES + PCT_INTERGENIC_BASES + RIN
@@ -445,18 +441,7 @@ test <- topTable(
   genelist = genes_relevant, 
   confint = TRUE # column of confidence interval 
     )
-#head(test, 20)
-#subset(test, gene_name == "SNCB") 
-```
-# cool map
-```{r}
-LBDvsControl <- topTable(veBayesFit, coef = 'LBDvsAD', p.value = 0.05, adjust.method = 'fdr',
-                  number = Inf, genelist = genes_relevant)
-LBDvsControl$gene_id
-up <- LBDvsControl$gene_id[LBDvsControl$logFC > .25][1:15]
-down <- LBDvsControl$gene_id[LBDvsControl$logFC < -.25][1:15]
-select <- c(up, down)
-coolmap(voom_cov[select,])
+head(test, 20)
 ```
 # Save objects
 ```{r save_voom}
@@ -618,15 +603,4 @@ col <- colorRampPalette(c("#4477AA", "#77AADD", "#FFFFFF", "#EE9988", "#BB4444")
          )
 path <- paste0("../../results/", tool ,"/varpart/", condition, ".CCA_PC1_10")
 saveToPDF(paste0(path, ".pdf"), width = 20, height = 20)
-```
-
-```{r}
-Sys.setenv(RSTUDIO_PANDOC="/usr/local/biotools/pandoc/3.1.2/bin")
-glimmaMDS(dge.filtered.norm)
-genes <- genes[,c(1,10,12)]
-glimmaVolcano(veBayesFit, dge = dge.filtered.norm, coef = 1, counts = dge.filtered.norm$counts, anno = genes)
-```
-
-```{r}
-sessionInfo()
 ```
