@@ -1,4 +1,4 @@
-pathToRef = c("/research/labs/neurology/fryer/projects/references/human/")
+pathToRef = c("/LBD_CWOW/references/human/")
 
 # read in annotation file
 gtf.file <- paste0(pathToRef, "gencode.v38.annotation.gtf")
