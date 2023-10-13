@@ -61,24 +61,25 @@ Change the working directory to the scripts/snakemake folder.
 ```
 cd scripts/snakemake/
 ```
-The build_gencode.v38.Snakefile script located in scripts/snakemake/ will create three STAR reference indexes: default, YPARSmask, and Ymasked. Be sure to have the LBD conda environment activated before running snakemake. The human_ref_config.json has already been created and is located in the scripts/snakemake/ folder. 
+The build_gencode.v38.Snakefile script located in `scripts/snakemake/` will create three STAR reference indexes: default, YPARSmask, and Ymasked. Be sure to have the LBD conda environment activated before running snakemake. The human_ref_config.json has already been created and is located in the scripts/snakemake/ folder. 
 ```
 snakemake -s build_gencode.v38.Snakefile
 ```
 
 
-## Run Snakemake for bulk RNAseq  data processing 
-1. get_read_group_info.sh script will list the fastq files that are located in the raw_fastq folder and collect header information that will be used to create the config file in the next step. 
+## Run Snakemake for bulk RNAseq data processing 
+The following scripts are located in `scripts/snakemake/`
+1. The `get_read_group_info.sh` script will list the fastq files that are located in the raw_fastq folder, and then collect header information that will be used to create the config file in the next step. 
 ```
-sh scripts/snakemake/get_read_group_info.sh
+sh get_read_group_info.sh
 ```
 
-2. create_RNA_config.py will create a config file of the sample IDs that are outputted from running the step above. 
+2. The `create_RNA_config.py` python script will create a config file of the sample IDs that are outputted from running the step above. 
 ```
 python create_RNA_config.py
 ```
 
-3. Run Snakemake which will merge samples that were sequenced on multiple lanes, generate fastqc reports, align to the reference genome, and collect RNA metrics. It is highly recommended to run snakemake in script on an HPC cluster.
+3. Finally, the `RNA.alignment.Snakefile` will merge samples that were sequenced on multiple lanes, generate fastqc reports, align to the reference genome, and collect RNA metrics. It is highly recommended to run snakemake on an HPC cluster. 
 ```
 snakemake -s RNA.alignment.Snakefile -j 100 --rerun-incomplete 
 ```
