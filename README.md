@@ -92,8 +92,8 @@ Counts data obtained from `RNA.alignment.Snakefile` along with sample informatio
 
 Overview of R scripts and functions:
 1. `01_sex_check.Rmd` evaluates the counts data obtained from aligning the reads to the default reference genome and determines if the reported sex matches the inferred sex for each individual. This script is optional and may be skipped as all samples have already been sex checked and reported sex matched inferred sex. 
-2. 02 
-3. 03
+2. `02_metadata_and_alignment_mertic_assessment.Rmd` evaluates and plots metadata and alignment metric information among the disease types and between the sexes. The alignment metrics have already been added to the `metadata.tsv` file and thus this script is optional and may be skipped. 
+3. `03a_create_dge_object.Rmd` will collect counts data for each sample and create an DGEList object which wholds the dataset to be analysed by edgeR and the subsequent calculations performed on the dataset. Specifically the DGEList object contains counts, library size, norm.factors, group and metadata information, and gene annotation information. The 03a script will also remove MT genes, retain only protein coding genes, and filter to remove lowly expressed genes. 
 4. 04
 5. 05
 6. 06
