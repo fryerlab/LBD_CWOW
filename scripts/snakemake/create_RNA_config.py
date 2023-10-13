@@ -22,6 +22,7 @@ with open('sample_read_group_info.txt', 'r') as infile:
 header = '''{{
     "Commment_Input_Output_Directories": "This section specifies the input and output directories for scripts",
     "rawReads" : "/LBD_CWOW/raw_fastq/",
+    "bulkRNA_merged_lanes" : "../../bulkRNA_merged_lanes",
     "rawQC" : "../../rawQC/",
     "trimmedReads" : "../../trimmedReads/",
     "trimmedQC" : "../../trimmedQC/",
