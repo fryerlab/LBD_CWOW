@@ -9,7 +9,7 @@ output:
 params:
   args: myarg
 ---
-Samples have already been sex checked and realigned to the SCC reference. 
+Samples have already been sex checked and realigned to the SCC reference. Sources of variation have already been examined, and a model has been fit to the data. 
 # Setup
 ```{r setup}
 knitr::opts_knit$set(root.dir = ".")
