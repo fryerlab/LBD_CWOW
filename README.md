@@ -83,11 +83,12 @@ python create_RNA_config.py
 ```
 snakemake -s RNA.alignment.Snakefile -j 100 --rerun-incomplete 
 ```
-The above command will submit 100 jobs in parallel and re-run any incomplete jobs. 
+The above command will submit 100 jobs in parallel and re-run any incomplete jobs. The outputs will include: fastqc reports, BAM files, gene-level counts data, and RNA metrics. Details regarding each processing step are outlined within the `RNA.alignment.Snakefile`. 
 
-The individuals have already been sex checked, see Olney et al. 202x for more details. To have the sequences align to a reference genome informed on the sex chromosome complement, create a male and female sample ID list within the `RNA.config.json` file. See the premade The premade`RNA.config.json` file located in `scripts/snakemake/` for the list of male and female sample IDs. 
+To have the sequences align to a reference genome informed on the sex chromosome complement, create a male and female sample ID list within the `RNA.config.json` file. See the premade `RNA.config.json` file located in `scripts/snakemake/` for the list of male and female sample IDs. The individuals have already been sex checked, see Olney et al. 202x for more details. 
 
 ## Bulk RNAseq gene differential expression analysis 
+Counts data obtained from `RNA.alignment.Snakefile` along with sample information is now ready to be read into R for further examination. 
 
 ## Manuscript figures 
 Scripts to make the following figures can be found under `scripts/R/manuscript_figures/`
