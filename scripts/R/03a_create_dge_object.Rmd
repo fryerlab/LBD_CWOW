@@ -138,7 +138,7 @@ path <- paste0("../../results/", tool, "/MDS/",
 saveToPDF(paste0(path, ".pdf"), width = 5.2, height = 5.2)
 ```
 
-# Filtering and RIN check
+# Filtering 
 The filterByExpr() function in the edgeR package determines which genes have a great enough count value to keep.  
 We will filter by group.  
 ```{r}
@@ -154,7 +154,7 @@ keep.expr <-
   filterByExpr(
     dge,
     group = dge$samples$TYPE, # by disease groups
-    min.count = 10, # min count of 10
+    min.count = M, # min count of the median library size, which should keep genes with at least 1 CPM in 30% of the smallest group
     min.prop = 0.3 # at least 30% of the smallest group 
   )
 dge.filtered <- dge[keep.expr, , keep.lib.sizes = FALSE]
