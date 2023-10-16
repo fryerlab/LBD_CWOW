@@ -81,7 +81,7 @@ saveToPDF <- function(...) {
 }
 
 # read in metadata
-metadata <- read.delim("scripts/RNA_metadata.tsv"))
+metadata <- read.delim("scripts/RNA_metadata.tsv")
 
 # set factor levels
 metadata$TYPE <- factor(metadata$TYPE, levels = c("CONTROL", "PA", "AD", "LBD"))
