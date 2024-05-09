@@ -1,7 +1,7 @@
 # LBD_CWOW
 Lewy Body Dementia Center With Out Walls (LBD CWOW) RNAseq processing and analysis.
-Anterior cingulate cortex tissue samples from the Mayo Clinic brain bank were collected for 619 individuals. 
-Raw fastq files are available on SRA, PRJNA1023207.
+Anterior cingulate cortex tissue samples from the Mayo Clinic brain bank were collected for 609 individuals. 
+Raw fastq files are available on SRA, PRJNA1023207. Each sample was sequenced on two lanes and the data is pair end. There are four fastq files for each individual. 
 
 | Disease                   | Count   |
 | ------------------------- |:-------:|
@@ -10,8 +10,16 @@ Raw fastq files are available on SRA, PRJNA1023207.
 | Alzheimer’s disease (AD)  | 53      |
 | Lewy body disease (LBD)   | 436     |
 
+The LBD cases were further starfified by neuropathological citeria of Thal amyloid phase and Braak NFT stage 
+| Disease                   | Count   |
+| ------------------------- |:-------:|
+| LBD (ATS)                 | 178     |
+| LBD (AS)                  | 161     |
+| LBD (TS)                  | 2       |
+| LBD (S)                   | 95      |
+
 This git repo contains scripts for the following:
--   Metadata analysis of the 619 individuals. 
+-   Metadata analysis of the 609 individuals. 
 -   Processing of bulk-tissue RNA-sequencing data.
 -   Gene-level differential expression among pairwise groups and within each genetic sex.
 -   Weighted gene co-expression network analysis (WGCNA).  
