@@ -3,9 +3,8 @@ Lewy Body Dementia Center With Out Walls (LBD CWOW) RNAseq processing and analys
 Anterior cingulate cortex tissue samples from the Mayo Clinic brain bank were collected for 609 individuals. 
 Raw fastq files are available on SRA, PRJNA1023207. Each sample was sequenced on two lanes and the data is pair end. There are four fastq files for each individual. 
 
-|                           |         | Thal amyloid phase
-| Disease                   |  Total  |     0     |     0     |     0     |     0     |     0    |     
-| ------------------------- |:-------:||:-------:|||:-------:|||:-------:|||:-------:|||:-------:|
+| Disease                   |  Total  |      
+| ------------------------- |:-------:|
 | Control                   | 81      |
 | Pathological amyloid (PA) | 39      |
 | Alzheimer’s disease (AD)  | 53      |
@@ -13,7 +12,7 @@ Raw fastq files are available on SRA, PRJNA1023207. Each sample was sequenced on
 
 The LBD cases were further starfified by neuropathological citeria of Thal amyloid phase and Braak NFT stage. LBD (ATS) Thal amyloid phase ≥ 2, Braak NFT stage > III (n = 178). LBD (AS) Thal amyloid score ≥ 2, Braak NFT stage ≤ III (n = 161). LBD (TS) Braak NFT score > III, Thal amyloid phase < 2 (n = 2). LBD (S) primarily LB pathology, Thal amyloid phase < 2, Braak NFT stage ≤ III (n = 95). 
 
-| Disease                   | Count   |
+| Disease                   | Total   |
 | ------------------------- |:-------:|
 | LBD (ATS)                 | 178     |
 | LBD (AS)                  | 161     |
